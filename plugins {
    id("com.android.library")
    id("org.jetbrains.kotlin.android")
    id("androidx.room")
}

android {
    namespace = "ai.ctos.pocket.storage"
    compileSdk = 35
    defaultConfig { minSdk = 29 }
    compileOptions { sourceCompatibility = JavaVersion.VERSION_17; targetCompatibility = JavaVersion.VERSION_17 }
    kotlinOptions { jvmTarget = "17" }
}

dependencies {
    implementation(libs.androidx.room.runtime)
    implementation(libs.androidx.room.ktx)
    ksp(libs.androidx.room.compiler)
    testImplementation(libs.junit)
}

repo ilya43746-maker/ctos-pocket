@@ -1,0 +1,27 @@
+package ai.ctos.pocket.exploit.impl
+
+import ai.ctos.pocket.discovery.Device
+import ai.ctos.pocket.discovery.DeviceProfile
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class ExploitTest {
+    @Test
+    fun `smart light exploit matches light profile`() = runBlocking {
+        val device = Device(ip = "10.0.0.44", hostname = "lamp", profile = DeviceProfile.LIGHT, vendor = "Philips")
+        val exploit = SmartLightExploit()
+        assertTrue(exploit.matches(device))
+        val readiness = exploit.probe(device)
+        assertEquals(ai.ctos.pocket.exploit.ExploitReadiness.READY, readiness)
+    }
+
+    @Test
+    fun `exploit registry returns matching exploits`() {
+        val registry = ExploitRegistryFactory().create()
+        val device = Device(ip = "10.0.0.31", hostname = "cam-01", profile = DeviceProfile.CAMERA)
+        val matches = registry.forDevice(device)
+        assertTrue(matches.isNotEmpty())
+    }
+}
